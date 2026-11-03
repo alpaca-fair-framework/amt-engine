@@ -212,7 +212,7 @@ Entfällt in diesem Repo. Der Namensraum `http://academic-meta-tool.xyz/vocab#` 
 | S22 | Hextupel im JS-Port und im Explorer, Paritätstest | amt-engine | S21 | erledigt 2026-10-30 (zusammen mit S21) |
 | S23 | Runner (Beispiel, Dokumentation, Versions-Hinweis), Release Engine 0.6.0 und Runner 0.5.0 samt Zenodo | amt-engine, amt-runner | S21, S22 | 23a und 23b erledigt (Tag `v0.6.0`, Release, Zenodo); 23c als Patch geliefert |
 | S25 | Typ `fw:Certainty` in Python-Engine und JS-Port (Kombinationsregel, Diagnose `AMT-W206`), `fw:implementedBy` der Logiken, Doku | amt-engine | S21, S22; FW-Patch 2026-11-03 | Patch geliefert 2026-11-03, nach Push erledigt |
-| S26 | AFE ↔ AMT, Fassung 3 für Karsten: Abfrage und Rückweg mit Denomination und Mint, `UncertainResourceValue`, `fw:Certainty` für den sicheren Fall, Methode `fw:AFEAssignment`, Roundtrip auf oberster Klassenebene, Beispiele (D12) | amt-engine | S25 | offen |
+| S26 | AFE ↔ AMT, Fassung 3 für Karsten: Abfrage und Rückweg mit Denomination und Mint, `UncertainResourceValue`, `fw:Certainty` für den sicheren Fall, Methode `fw:AFEAssignment`, Roundtrip auf oberster Klassenebene, Beispiele (D12) | amt-engine | S25 | Paket geliefert 2026-11-03, nach Rückmeldung von Karsten erledigt |
 
 S3, S4, S5 und S6 sind erledigt. Offen bleiben die Punkte in Teil D. Der Runner (S2) liest die Engine zur Laufzeit aus `main`; er braucht S5 erst, wenn er auf Tags pinnen soll.
 
@@ -702,6 +702,12 @@ Der erste Windows-Lauf (Python 3.10) zeigte einen Fehler, den die Sandbox nicht 
 **Inhalt (Vorschlag):** Abfrage und Rückweg für Authority, Denomination, Mint (Eigenschaftsnamen vorher in Karstens Daten prüfen); Rückweg schreibt `UncertainResourceValue`; Fall „sicher“ schreibt `fw:hasType fw:Certainty`, `fw:hasMethod fw:AFEAssignment` an allen Kanten; `run_roundtrip.py` vergleicht auf oberster Klassenebene; Grenzfälle A und D als „kommt heute nicht vor“ dokumentiert; `AMT-N303` verschwindet durch die Methode; neues Memo (Fassung 3) mit den zwei Sätzen zu Typ und Klasse und der Rückfrage zu Münzen ohne `hasAuthority`.
 
 **Abnahme:** Roundtrip auf Karstens Daten (nach Anpassung von 16048): `ROUNDTRIP: GLEICH` auf oberster Klassenebene; `--check-only` ohne Warnung; zwei Läufe, `git status` stabil.
+
+**Stand 2026-11-03 (Paket `AFE-AMT-AFE-Fassung3.zip` geliefert, liegt außerhalb dieses Repos):**
+- Abfrage und Rückweg für `nmo:hasAuthority`, `nmo:hasDenomination`, `nmo:hasMint` (die beiden letzten Namen sind angenommen, an konstruierten Daten getestet, Karsten bestätigt sie noch); `fw:Certainty` im sicheren Fall, `fw:hasMethod fw:AFEAssignment` an jeder Kante, Rückweg schreibt `UncertainResourceValue`.
+- `run_roundtrip.py` vergleicht auf oberster Klassenebene (`…Value` = `…ResourceValue`): `ROUNDTRIP: GLEICH` mit rdflib und durch die Engine, für Karstens fünf Münzen und die konstruierten Denomination/Mint-Münzen. `--check`: 2 Concepts, 12 Nodes, 7 Edges, nur `AMT-N301`; `AMT-N303` ist durch die Methode weg.
+- Grenze von Fall 4: Die Engine behält je Knoten nur `amt:instanceOf` und Label, ein zusätzliches Tripel `nmo:hasAuthority nm:uncertain_value` geht verloren. „Münze ohne jede Kante“ bedeutet daher im Rückweg nur Authority = unbekannt; für Denomination und Mint gibt es keine Darstellung. Offen bis zu Karstens Antwort (Münzen ohne `hasAuthority`, Frage 2 im Memo).
+- Offene Fragen an Karsten (Memo, Abschnitt 8): Namen für Denomination/Mint, Münzen ohne `hasAuthority`, `hasConfidence` oder `hasConfidenceLevel`, Klasse für sichere Werte (`fw:CertainValue`), Regel für die Gewichte, weitere Eigenschaften.
 
 ## Teil D – Offene Punkte
 
