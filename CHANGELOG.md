@@ -13,6 +13,10 @@ Zenodo.
 
 ## [Unreleased]
 
+### Fixed
+
+- `py/site_howto.py`: the unescaped `\l` in `out\latest\my.html` (create how-to) raised a `SyntaxWarning`; it is now `\\l` like the other paths. The generated page is unchanged.
+
 ### Added
 
 - **`fw:Certainty`** as a fourth statement type (S25). A certain statement is not fuzzy at all and has weight 1.0; the term stands beside
