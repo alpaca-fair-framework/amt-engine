@@ -39,7 +39,7 @@ from dataclasses import dataclass, field
 from rdflib import RDF, RDFS, Graph, URIRef
 
 from .core import AMT, local_name
-from .fw import FW, KNOWN_TYPES
+from .fw import CERTAINTY, FW, KNOWN_TYPES
 
 LEVELS = ("error", "warning", "note")
 
@@ -192,7 +192,7 @@ def diagnose(amt: dict) -> list[Finding]:
             "The two properties mean the same thing. Keep one of them, or give both the same value.",
         ))
 
-    # ── W205: fw:hasType names something that is not one of the three types ─
+    # ── W205: fw:hasType names something that is not one of the known types ─
     unknown_types: dict[str, list[str]] = {}
     for e in edges:
         t = e.get("type")
@@ -204,10 +204,25 @@ def diagnose(amt: dict) -> list[Finding]:
         out.append(Finding(
             "warning", "AMT-W205", iri,
             f"{_angle(iri)} is used as fw:hasType ({sample}) but is not one of fw:Vagueness, fw:Uncertainty, "
-            "fw:FuzzinessWobbliness. It is kept as it is and counted as its own type.",
-            "Use one of the three individuals of the FW ontology (http://w3id.org/fw_ontology/), or leave fw:hasType out "
+            "fw:FuzzinessWobbliness, fw:Certainty. It is kept as it is and counted as its own type.",
+            "Use one of the four individuals of the FW ontology (http://w3id.org/fw_ontology/), or leave fw:hasType out "
             "to get the default, fw:Vagueness.",
             related=tuple(who),
+        ))
+
+    # ── W206: fw:Certainty with a weight below 1 ────────────────────────
+    not_certain = sorted((_triple_text(e["from"], e["role"], e["to"]), e["weight"])
+                         for e in edges
+                         if e.get("type") == CERTAINTY and not e.get("inferred") and e["weight"] < 1.0 - 1e-9)
+    if not_certain:
+        names = [f"{s} (weight {w:g})" for s, w in not_certain]
+        sample = "; ".join(names[:3]) + (f"; and {len(names) - 3} more" if len(names) > 3 else "")
+        out.append(Finding(
+            "warning", "AMT-W206", not_certain[0][0],
+            f"{len(not_certain)} statement(s) have fw:hasType fw:Certainty but a weight below 1 ({sample}). "
+            "A certain statement holds fully, so its weight should be 1.0.",
+            "Give the statement weight 1.0, or change its type to fw:Vagueness, fw:Uncertainty or fw:FuzzinessWobbliness.",
+            related=tuple(s for s, _ in not_certain),
         ))
 
     # ── N303: a type without a method ───────────────────────────────────

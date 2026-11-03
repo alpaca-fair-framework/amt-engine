@@ -8,15 +8,17 @@ FW ontology (``caa-datadragons/FW_Ontology``, namespace
 can say about itself, which together make it a hextuple:
 
 ``fw:hasType``
-    what kind of fuzziness the weight expresses — one of the three individuals
-    :data:`VAGUENESS`, :data:`UNCERTAINTY`, :data:`FUZZINESS_WOBBLINESS`.
+    what kind of fuzziness the weight expresses — one of the four individuals
+    :data:`VAGUENESS`, :data:`UNCERTAINTY`, :data:`FUZZINESS_WOBBLINESS` and
+    :data:`CERTAINTY` (the statement is not fuzzy at all, weight 1.0).
 ``fw:hasMethod``
     how the weight was obtained, for example an AMT logic such as
     ``amt:GoedelLogic`` for a weight the reasoner computed.
 
 Both are optional. In AMT, **a statement without a type is a vagueness
 statement** (:data:`DEFAULT_TYPE`); the edge dict then carries ``type: None``
-and :func:`effective_type` returns :data:`VAGUENESS`.
+and :func:`effective_type` returns :data:`VAGUENESS`. :data:`CERTAINTY` is
+never assumed: it is only there when the data says so.
 
 Edge dict keys added by the hextuple (all default to ``None``)::
 
@@ -39,9 +41,11 @@ FW_PFX = str(FW)
 VAGUENESS = FW_PFX + "Vagueness"
 UNCERTAINTY = FW_PFX + "Uncertainty"
 FUZZINESS_WOBBLINESS = FW_PFX + "FuzzinessWobbliness"
+#: A certain statement. It stands beside vagueness and uncertainty, not below the umbrella.
+CERTAINTY = FW_PFX + "Certainty"
 
-#: The three individuals of ``fw:FW_Type`` that AMT knows, in a fixed order.
-KNOWN_TYPES: tuple[str, ...] = (FUZZINESS_WOBBLINESS, UNCERTAINTY, VAGUENESS)
+#: The individuals of ``fw:FW_Type`` that AMT knows, in a fixed order.
+KNOWN_TYPES: tuple[str, ...] = (CERTAINTY, FUZZINESS_WOBBLINESS, UNCERTAINTY, VAGUENESS)
 
 #: What a statement is when nothing else is said.
 DEFAULT_TYPE = VAGUENESS
@@ -64,7 +68,10 @@ def combine_types(types: Iterable[str | None]) -> str:
     The effective type of a statement derived from several others.
 
     If all antecedents have the same effective type, the result has it too.
-    If they differ, the result is :data:`FUZZINESS_WOBBLINESS`, the common
+    :data:`CERTAINTY` adds no fuzziness: it is left out as soon as another
+    type is present, so a chain of certain statements stays certain and a
+    certain statement next to a vague one gives vagueness. If the remaining
+    types differ, the result is :data:`FUZZINESS_WOBBLINESS`, the common
     broader concept of ``fw:Vagueness`` and ``fw:Uncertainty``. A missing type
     counts as :data:`VAGUENESS`. Without any antecedent the result is the
     default.
@@ -72,6 +79,8 @@ def combine_types(types: Iterable[str | None]) -> str:
     seen = {t or DEFAULT_TYPE for t in types}
     if not seen:
         return DEFAULT_TYPE
+    if len(seen) > 1:
+        seen.discard(CERTAINTY)
     if len(seen) == 1:
         return next(iter(seen))
     return FUZZINESS_WOBBLINESS

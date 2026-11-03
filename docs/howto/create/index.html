@@ -127,7 +127,8 @@ ex:RCA a amt:RoleChainAxiom ;
 <h2 id="type">5. Type and method (optional)</h2>
 <p>An edge with subject, predicate, object and weight is a quadruple and is complete. Two more parts from the
 <a href="http://w3id.org/fw_ontology/">FW ontology</a> make it a hextuple: <code>fw:hasType</code> (<code>fw:Vagueness</code>,
-<code>fw:Uncertainty</code> or <code>fw:FuzzinessWobbliness</code>) and <code>fw:hasMethod</code> (how the weight was obtained).
+<code>fw:Uncertainty</code>, <code>fw:FuzzinessWobbliness</code>, or <code>fw:Certainty</code> for a statement that is not fuzzy at all)
+and <code>fw:hasMethod</code> (how the weight was obtained).
 Add the prefix <code>fw:</code> and write them on the edge:</p>
 <pre><code>ex:Person a amt:Concept ; rdfs:label &quot;Person&quot; .
 ex:ada     amt:instanceOf ex:Person ; rdfs:label &quot;Ada Lovelace&quot; .
@@ -140,7 +141,9 @@ ex:charles amt:instanceOf ex:Person ; rdfs:label &quot;Charles Babbage&quot; .
    amt:weight    &quot;0.5&quot;^^xsd:decimal ;
    fw:hasType    fw:Uncertainty ;
    fw:hasMethod  fw:EqualShareRule .</code></pre>
-<p>Without <code>fw:hasType</code> an edge is a vagueness edge, also at weight 1. A type without a method is allowed, but the engine
+<p>Without <code>fw:hasType</code> an edge is a vagueness edge, also at weight 1. To say that a statement is certain, write
+<code>fw:hasType fw:Certainty</code> together with weight 1.0; a certain statement with a lower weight is reported as
+<a href="../validate/#AMT-W206"><code>AMT-W206</code></a>. A type without a method is allowed, but the engine
 points it out (<a href="../validate/#AMT-N303"><code>AMT-N303</code></a>); a type it does not know is reported as
 <a href="../validate/#AMT-W205"><code>AMT-W205</code></a>. The reasoner gives inferred edges a method and a type as well; the
 <a href="../../ontology/#type-method">data model page</a> says how.</p>

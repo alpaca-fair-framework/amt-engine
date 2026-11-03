@@ -284,11 +284,19 @@ CATALOGUE = [
      "Weights are degrees of truth between 0 and 1. SHACL rejects the file first, but with --no-validate the engine would clamp values above 1.",
      "Use a value between 0 and 1.",
      "bad-weight"),
-    ("AMT-W205", "warning", "... is used as fw:hasType but is not one of the three types",
+    ("AMT-W205", "warning", "... is used as fw:hasType but is not one of the known types",
      "A statement can say what kind of fuzziness its weight expresses: <code>fw:Vagueness</code>, "
-     "<code>fw:Uncertainty</code> or <code>fw:FuzzinessWobbliness</code>. Any other value is kept and counted as a type of its own, "
+     "<code>fw:Uncertainty</code>, <code>fw:FuzzinessWobbliness</code>, or <code>fw:Certainty</code> for a statement that is not fuzzy at all. "
+     "Any other value is kept and counted as a type of its own, "
      "which is probably a typo or a term from another vocabulary.",
-     "Use one of the three, or leave <code>fw:hasType</code> out: a statement without a type is a vagueness statement.",
+     "Use one of the four, or leave <code>fw:hasType</code> out: a statement without a type is a vagueness statement.",
+     None),
+    ("AMT-W206", "warning", "N statement(s) have fw:hasType fw:Certainty but a weight below 1",
+     "A certain statement holds fully, so its weight is 1.0. A weight below 1 on a certain statement contradicts itself; "
+     "the engine keeps the weight as it is and still counts the statement as certain, so an edge derived from it can be certain "
+     "with a weight below 1.",
+     "Give the statement weight 1.0, or change its type to <code>fw:Vagueness</code>, <code>fw:Uncertainty</code> or "
+     "<code>fw:FuzzinessWobbliness</code>.",
      None),
     ("AMT-W204", "warning", "The file contains no weighted statement",
      "There is nothing to reason about. Typical reasons: the edges are written without amt:weight, or they are only linked "
@@ -454,10 +462,13 @@ a domain and a range:</p>
 <h2 id="type">5. Type and method (optional)</h2>
 <p>An edge with subject, predicate, object and weight is a quadruple and is complete. Two more parts from the
 <a href="http://w3id.org/fw_ontology/">FW ontology</a> make it a hextuple: <code>fw:hasType</code> (<code>fw:Vagueness</code>,
-<code>fw:Uncertainty</code> or <code>fw:FuzzinessWobbliness</code>) and <code>fw:hasMethod</code> (how the weight was obtained).
+<code>fw:Uncertainty</code>, <code>fw:FuzzinessWobbliness</code>, or <code>fw:Certainty</code> for a statement that is not fuzzy at all)
+and <code>fw:hasMethod</code> (how the weight was obtained).
 Add the prefix <code>fw:</code> and write them on the edge:</p>
 {_ex("hextuple")}
-<p>Without <code>fw:hasType</code> an edge is a vagueness edge, also at weight 1. A type without a method is allowed, but the engine
+<p>Without <code>fw:hasType</code> an edge is a vagueness edge, also at weight 1. To say that a statement is certain, write
+<code>fw:hasType fw:Certainty</code> together with weight 1.0; a certain statement with a lower weight is reported as
+<a href="../validate/#AMT-W206"><code>AMT-W206</code></a>. A type without a method is allowed, but the engine
 points it out (<a href="../validate/#AMT-N303"><code>AMT-N303</code></a>); a type it does not know is reported as
 <a href="../validate/#AMT-W205"><code>AMT-W205</code></a>. The reasoner gives inferred edges a method and a type as well; the
 <a href="../../ontology/#type-method">data model page</a> says how.</p>

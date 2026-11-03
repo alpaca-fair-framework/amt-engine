@@ -239,7 +239,7 @@ FW_SECTION = (
     'These terms are defined there, not in <code>amt.ttl</code>; AMT reads and writes them as follows.</p>'
     '<table><thead><tr><th>Term</th><th>Use in AMT</th></tr></thead><tbody>'
     '<tr><td><code>fw:hasType</code></td><td>Kind of fuzziness of the weight: <code>fw:Vagueness</code> (default), '
-    '<code>fw:Uncertainty</code> or <code>fw:FuzzinessWobbliness</code>.</td></tr>'
+    '<code>fw:Uncertainty</code>, <code>fw:FuzzinessWobbliness</code> or <code>fw:Certainty</code> (not fuzzy, weight 1.0).</td></tr>'
     '<tr><td><code>fw:hasMethod</code></td><td>How the weight was obtained, for example <code>fw:EqualShareRule</code>. '
     'On an inferred edge it is the logic of the role chain axiom.</td></tr>'
     '<tr><td><code>fw:hasDegreeOfConnection</code></td><td>The FW name for the weight. Read like <code>amt:weight</code>; '
@@ -430,6 +430,7 @@ the edge a <strong>hextuple</strong>: <code>fw:hasType</code> says what kind of 
 <tr><td><code>fw:hasType</code></td><td><code>fw:Vagueness</code></td><td>the relation holds to a degree (the default)</td></tr>
 <tr><td></td><td><code>fw:Uncertainty</code></td><td>the relation holds or not, and we do not know which</td></tr>
 <tr><td></td><td><code>fw:FuzzinessWobbliness</code></td><td>both at once; also the type of an inferred edge whose antecedents differ in type</td></tr>
+<tr><td></td><td><code>fw:Certainty</code></td><td>the relation holds fully (weight 1.0); never assumed, only if the data says so</td></tr>
 <tr><td><code>fw:hasMethod</code></td><td>for example <code>fw:EqualShareRule</code></td><td>how the weight was obtained; for an inferred edge, the logic that computed it</td></tr>
 </tbody></table>
 <ul>
@@ -440,7 +441,7 @@ write this default into its output unless it was in the input.</li>
 <li><strong>Another name for the weight.</strong> <code>fw:hasDegreeOfConnection</code> is read like <code>amt:weight</code>; the
 engine writes <code>amt:weight</code>.</li>
 <li><strong>Inferred edges.</strong> A role chain gives the edge the logic as its method and the common type of the antecedents,
-or <code>fw:FuzzinessWobbliness</code> if they differ. An inverse or subsumed edge has no method and takes the type of the edge it comes from.
+or <code>fw:FuzzinessWobbliness</code> if they differ; <code>fw:Certainty</code> adds no fuzziness, so it is left out as soon as another type is present (a chain of certain edges stays certain). An inverse or subsumed edge has no method and takes the type of the edge it comes from.
 If several paths lead to the same edge, the highest weight wins; at equal weight the choice is fixed, so the result does not change between runs.</li>
 </ul>
 

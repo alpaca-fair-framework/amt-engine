@@ -167,6 +167,7 @@
   var VAGUENESS = FW_NS + "Vagueness";
   var UNCERTAINTY = FW_NS + "Uncertainty";
   var FUZZINESS_WOBBLINESS = FW_NS + "FuzzinessWobbliness";
+  var CERTAINTY = FW_NS + "Certainty";
 
   // The type that counts for an edge: its own, or vagueness (the default).
   function effectiveType(edge) { return (edge && edge.type) || VAGUENESS; }
@@ -176,6 +177,7 @@
 
   // Effective type of a statement derived from several others: the common
   // type if all agree, otherwise fw:FuzzinessWobbliness. null counts as vagueness.
+  // fw:Certainty adds no fuzziness: it is left out as soon as another type is present.
   function combineTypes(types) {
     var seen = [];
     for (var i = 0; i < types.length; i++) {
@@ -183,6 +185,10 @@
       if (seen.indexOf(t) < 0) seen.push(t);
     }
     if (!seen.length) return VAGUENESS;
+    if (seen.length > 1) {
+      var k = seen.indexOf(CERTAINTY);
+      if (k >= 0) seen.splice(k, 1);
+    }
     return seen.length === 1 ? seen[0] : FUZZINESS_WOBBLINESS;
   }
 
@@ -364,6 +370,7 @@
     VAGUENESS: VAGUENESS,
     UNCERTAINTY: UNCERTAINTY,
     FUZZINESS_WOBBLINESS: FUZZINESS_WOBBLINESS,
+    CERTAINTY: CERTAINTY,
     effectiveType: effectiveType,
     storedType: storedType,
     combineTypes: combineTypes,

@@ -18,7 +18,7 @@ from amt import do_reasoning, load_amt
 from amt.diagnostics import diagnose
 from amt.export import export_csv, export_cypher, export_ttl
 from amt.fw import (
-    DEFAULT_TYPE, FUZZINESS_WOBBLINESS, UNCERTAINTY, VAGUENESS,
+    CERTAINTY, DEFAULT_TYPE, FUZZINESS_WOBBLINESS, KNOWN_TYPES, UNCERTAINTY, VAGUENESS,
     combine_types, effective_type, stored_type,
 )
 from amt.validation import validate_against_shapes
@@ -259,3 +259,64 @@ def test_the_six_logics_are_propagation_methods():
     logics = set(g.subjects(RDF.type, URIRef(AMT + "Logic")))
     methods = set(g.subjects(RDF.type, URIRef(FW + "PropagationMethod")))
     assert len(logics) == 6 and logics <= methods
+
+
+# ── fw:Certainty (PRIMER S25) ──────────────────────────────────────────────
+def test_certainty_is_a_known_type_but_never_the_default():
+    assert CERTAINTY == FW + "Certainty" and CERTAINTY in KNOWN_TYPES
+    assert DEFAULT_TYPE == VAGUENESS
+    assert effective_type({"type": None}) == VAGUENESS
+    assert effective_type({"type": CERTAINTY}) == CERTAINTY
+    assert stored_type(CERTAINTY) == CERTAINTY              # written out, unlike the default
+
+
+def test_combine_types_with_certainty():
+    assert combine_types([CERTAINTY, CERTAINTY]) == CERTAINTY            # a chain of certain statements stays certain
+    assert combine_types([CERTAINTY, VAGUENESS]) == VAGUENESS            # certainty adds no fuzziness
+    assert combine_types([CERTAINTY, None]) == VAGUENESS                 # a missing type is vagueness
+    assert combine_types([CERTAINTY, UNCERTAINTY]) == UNCERTAINTY
+    assert combine_types([CERTAINTY, UNCERTAINTY, UNCERTAINTY]) == UNCERTAINTY
+    assert combine_types([CERTAINTY, UNCERTAINTY, VAGUENESS]) == FUZZINESS_WOBBLINESS
+    assert combine_types([CERTAINTY, FUZZINESS_WOBBLINESS]) == FUZZINESS_WOBBLINESS
+
+
+_CHAIN = PREFIXES + """
+ex:r1 a amt:Role ; rdfs:label "r1" ; rdfs:domain ex:C ; rdfs:range ex:C .
+ex:r2 a amt:Role ; rdfs:label "r2" ; rdfs:domain ex:C ; rdfs:range ex:C .
+ex:r3 a amt:Role ; rdfs:label "r3" ; rdfs:domain ex:C ; rdfs:range ex:C .
+ex:c amt:instanceOf ex:C ; rdfs:label "c" .
+ex:ax a amt:RoleChainAxiom ; amt:antecedents ( ex:r1 ex:r2 ) ; amt:consequent ex:r3 ; amt:logic amt:ProductLogic .
+"""
+
+
+def _derived(second_type):
+    ttl = _CHAIN + (
+        "[] rdf:subject ex:a ; rdf:predicate ex:r1 ; rdf:object ex:b ; amt:weight 1.0 ; fw:hasType fw:Certainty .\n"
+        f"[] rdf:subject ex:b ; rdf:predicate ex:r2 ; rdf:object ex:c ; amt:weight {second_type[0]} ; {second_type[1]}\n")
+    amt = load_amt(ttl)
+    return [e for e in do_reasoning(amt["edges"], amt["axioms"]) if e["inferred"]]
+
+
+def test_a_chain_of_certain_statements_derives_a_certain_statement_with_weight_one():
+    d = _derived((1.0, "fw:hasType fw:Certainty ."))
+    assert [(e["type"], e["weight"]) for e in d] == [(CERTAINTY, 1.0)]
+
+
+def test_a_certain_statement_next_to_an_uncertain_one_gives_uncertainty():
+    d = _derived((0.5, "fw:hasType fw:Uncertainty ."))
+    assert [(e["type"], e["weight"]) for e in d] == [(UNCERTAINTY, 0.5)]
+
+
+def test_certainty_survives_the_turtle_round_trip():
+    amt = load_amt(_CHAIN + "[] rdf:subject ex:a ; rdf:predicate ex:r1 ; rdf:object ex:b ; amt:weight 1.0 ; fw:hasType fw:Certainty .\n")
+    again = load_amt(_export(amt))
+    assert [e["type"] for e in again["edges"]] == [CERTAINTY]
+
+
+def test_certainty_below_weight_one_is_a_warning_and_a_clean_one_is_not():
+    bad = PREFIXES + "[] rdf:subject ex:a ; rdf:predicate ex:r ; rdf:object ex:b ; amt:weight 0.8 ; fw:hasType fw:Certainty .\n"
+    good = PREFIXES + "[] rdf:subject ex:a ; rdf:predicate ex:r ; rdf:object ex:b ; amt:weight 1.0 ; fw:hasType fw:Certainty .\n"
+    f = [x for x in diagnose(load_amt(bad)) if x.code == "AMT-W206"]
+    assert len(f) == 1 and "0.8" in f[0].message
+    assert "AMT-W206" not in [x.code for x in diagnose(load_amt(good))]
+    assert "AMT-W205" not in [x.code for x in diagnose(load_amt(good))]    # fw:Certainty is a known type

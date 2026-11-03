@@ -148,6 +148,10 @@ Eigenschaften, die das Repo haben muss:
 | Hextupel: Methode an abgeleiteten Kanten | Jede von einer Rollenkette abgeleitete Kante trägt `fw:hasMethod` (die Logik), auch wenn ihr Typ der Standard ist; deshalb enthält `*.reasoned.ttl` auch bei Dateien ohne Typ den Präfix `fw:` und `fw:hasMethod` (im CHANGELOG genannt). Nur `fw:hasType` des Standards wird nicht geschrieben | 2026-10-30 |
 | Hextupel: Ausgabeformate | `edges.csv` bekommt am Ende die Spalten `type` (wirksamer Typ, also `fw:Vagueness` statt leer) und `method` (leer, wenn keine); Cypher-Eigenschaften `type` und `method` (Kurznamen, `method` nur wenn vorhanden); Tooltip im Graphen und im Explorer: `asserted\|inferred \| type: … \| method: …` | 2026-10-30 |
 | Hextupel: Evidenz | Evidenz-Knoten werden mit ihren eigenen Tripeln gelesen (Objekte, die Blank Nodes sind, entfallen: keine verschachtelten Knoten) und als `fw:derivedFrom [ … ]` wieder geschrieben; der Explorer führt Evidenz nicht mit | 2026-10-30 |
+| Hextupel: Typ „sicher“ | Neuer Typ `fw:Certainty` (Individuum von `fw:FW_Type`, FW-Ontologie 2026-11-03): die Aussage ist nicht fuzzy, Gewicht 1.0. Er steht neben `fw:Vagueness` und `fw:Uncertainty`, nicht unter `fw:FuzzinessWobbliness`. Er wird nie angenommen: Der Standard „ohne `fw:hasType` = vage“ (Zeile vom 2026-10-30) bleibt, `fw:Certainty` gilt nur, wenn die Daten es schreiben (Beschluss des Autors) | 2026-11-03 |
+| Hextupel: Typ bei abgeleiteten Kanten mit „sicher“ | `fw:Certainty` zählt nicht, sobald ein anderer Typ vorkommt: nur sichere Antezedentien → `fw:Certainty` (Gewicht 1.0 unter allen sechs Logiken); sicher + X → X; verschiedene übrige Typen → `fw:FuzzinessWobbliness`. Ein Typ ohne Angabe zählt weiter als `fw:Vagueness`, also ist „sicher + ohne Typ“ vage. Das ist die Regel für `combine_types` und `combineTypes` | Vorschlag 2026-11-03 (mit S25 umgesetzt; vom Autor noch nicht ausdrücklich bestätigt, nur die Wahl „daneben“ steht fest) |
+| Hextupel: `fw:Certainty` mit Gewicht unter 1 | Diagnose `AMT-W206` (Warnung): Das Gewicht bleibt, wie es ist, der Typ bleibt `fw:Certainty`; eine daraus abgeleitete Kante kann dann sicher mit Gewicht unter 1 sein. Es gibt keinen Abbruch und kein SHACL-Verstoß. `AMT-W205` nennt jetzt vier Typen | 2026-11-03 |
+| `fw:implementedBy` der sechs Logiken | In `ontology/amt.ttl` hat jede Logik `fw:implementedBy <https://github.com/alpaca-fair-framework/amt-engine/blob/v0.6.0/amt/logic.py>` (Tag, ändert sich nicht mit späteren Commits). Eine Zenodo-Adresse kommt, wenn es eine für die Datei gibt | 2026-11-03 |
 | Eingabe als Text | `load_amt` und `validate_against_shapes` behandeln einen Text, der kein Pfad sein kann („File name too long“), als Turtle; Fehler beim Prüfen des Pfads gelten als „kein Pfad“ (`is_existing_path` in `amt/core.py`) | 2026-10-30 |
 | Namensräume der Beispiele | Die Bezeichner der Beispieldaten ziehen mit um: `http://github.com/alpaca-fair-framework/amt-explore/` (animals, SKOS-Beispiele) und `http://github.com/alpaca-fair-framework/amt-engine/subsumption-demo/`; die Pfade bleiben, nur der Organisationsname ändert sich. Der Vorschlag war, sie als stabile Bezeichner zu belassen; der Autor hat anders entschieden. Dateien mit dem alten Namensraum laden und validieren weiter | 2026-10-30 |
 | Adressen nach dem Umzug | Pages: `https://alpaca-fair-framework.github.io/amt-engine/` (am 2026-10-30 geprüft: lädt; `n4o-rse.github.io/amt-engine/` antwortet nicht). `deploy/redirects.yaml` hat die neue `pages`-Adresse und die neuen Repo-Ziele; die `.htaccess`-Dateien und die w3id-README entstehen daraus. Historische Texte (Prosa im CHANGELOG des Runners, ältere Einträge in diesem Primer) bleiben unverändert | 2026-10-30 |
@@ -207,6 +211,8 @@ Entfällt in diesem Repo. Der Namensraum `http://academic-meta-tool.xyz/vocab#` 
 | S21 | Hextupel in der Python-Engine: laden, Reasoning, Export, SHACL, Diagnose, How-To, Tests, Roundtrip-Beispiel | amt-engine | S19, S20 | erledigt 2026-10-30 (Windows, Python 3.10, `a451995`) |
 | S22 | Hextupel im JS-Port und im Explorer, Paritätstest | amt-engine | S21 | erledigt 2026-10-30 (zusammen mit S21) |
 | S23 | Runner (Beispiel, Dokumentation, Versions-Hinweis), Release Engine 0.6.0 und Runner 0.5.0 samt Zenodo | amt-engine, amt-runner | S21, S22 | 23a und 23b erledigt (Tag `v0.6.0`, Release, Zenodo); 23c als Patch geliefert |
+| S25 | Typ `fw:Certainty` in Python-Engine und JS-Port (Kombinationsregel, Diagnose `AMT-W206`), `fw:implementedBy` der Logiken, Doku | amt-engine | S21, S22; FW-Patch 2026-11-03 | Patch geliefert 2026-11-03, nach Push erledigt |
+| S26 | AFE ↔ AMT, Fassung 3 für Karsten: Abfrage und Rückweg mit Denomination und Mint, `UncertainResourceValue`, `fw:Certainty` für den sicheren Fall, Methode `fw:AFEAssignment`, Roundtrip auf oberster Klassenebene, Beispiele (D12) | amt-engine | S25 | offen |
 
 S3, S4, S5 und S6 sind erledigt. Offen bleiben die Punkte in Teil D. Der Runner (S2) liest die Engine zur Laufzeit aus `main`; er braucht S5 erst, wenn er auf Tags pinnen soll.
 
@@ -651,6 +657,52 @@ Der erste Windows-Lauf (Python 3.10) zeigte einen Fehler, den die Sandbox nicht 
 - Umgesetzt wie beschrieben; 172 Tests grün. Die Datei `docs/assets/figures.json` und die Bilder unter `docs/ontology/img/` entstehen neu.
 - Offen: Randtext im Explorer-Dialog (RDF-Export) nicht geprüft.
 
+## S25 – Typ „sicher“ (`fw:Certainty`)
+
+**Ziel:** Die Engine kennt vier Typen. Eine sichere Aussage (Gewicht 1.0) kann sich von einer Aussage ohne Typ unterscheiden und rechnet im Reasoning mit.
+
+**Anlass:** Karsten (AFE) braucht für den sicheren Fall (`nmo:hasAuthority` direkt auf den Kaiser) einen Typ, der nicht „vage“ heißt. Der Autor hat am 2026-11-03 entschieden: eigener Typ neben Vagheit und Unsicherheit, mit Gewicht 1.0, damit sicher auch reasonbar ist. FW-Ontologie: Patch `fw:Certainty` vom selben Tag (Individuum von `fw:FW_Type`, ohne `skos:broader`).
+
+**Uploads:** der Standard-Bundle (A5).
+
+**Inhalt:**
+- `amt/fw.py`: `CERTAINTY`, in `KNOWN_TYPES`; `combine_types` lässt `fw:Certainty` weg, sobald ein anderer Typ da ist. `stored_type` und `effective_type` unverändert (der Standard bleibt `fw:Vagueness`, `fw:Certainty` wird immer geschrieben).
+- `amt/diagnostics.py`: `AMT-W206` (Typ `fw:Certainty`, Gewicht unter 1, nur behauptete Kanten); `AMT-W205` nennt vier Typen.
+- `docs/js/amt-reasoner.js`: `CERTAINTY` und dieselbe Kombinationsregel; Paritätstest mit sieben neuen Fällen.
+- `ontology/amt.ttl`: `fw:implementedBy` bei den sechs Logiken (Tag `v0.6.0`).
+- Seitentexte (`py/site_howto.py`, `py/site_pages.py`) und README; Tests in `tests/test_hextuple.py`.
+
+**Rechenbeispiel:** Kette aus zwei Kanten, Product-Logik. Beide `fw:Certainty` mit 1.0 → abgeleitet `fw:Certainty`, 1.0. Erste `fw:Certainty` 1.0, zweite `fw:Uncertainty` 0.5 → abgeleitet `fw:Uncertainty`, 0.5. Erste `fw:Certainty`, zweite ohne Typ → `fw:Vagueness` (gespeichert als kein Typ).
+
+**Nicht geändert:** Standard „ohne Typ = vage“; Ausgabeformate (die CSV-Spalte `type` zeigt `fw:Certainty` wie jeden anderen Typ); die SHACL-Shapes (Typ ist dort nicht eingeschränkt); der Runner (er liest die Engine zur Laufzeit aus `main`).
+
+**Abnahme:** `python main.py --strict` zweimal grün, `git status` danach nur mit den im PATCH-README genannten Pfaden; `pytest tests/test_hextuple.py tests/test_js_reasoner.py` grün; ein Test schlägt fehl, wenn die Zeile `seen.discard(CERTAINTY)` bzw. ihr JS-Gegenstück entfällt (Mutationsprüfung, in dieser Sitzung gemacht).
+
+### Erledigt 2026-11-03
+
+- Umgesetzt wie beschrieben. Offen: nicht unter Python 3.10 getestet (in der Sandbox gibt es nur 3.11 bis 3.13); der Code nutzt keine neuere Syntax, trotzdem bitte unter 3.10 laufen lassen (`python -m pytest tests -q`).
+- Folge für die Mini-AMT-Repos: sichere Aussagen können dort künftig `fw:Certainty` bekommen statt „ohne Typ“ (D17).
+
+## S26 – AFE ↔ AMT, Fassung 3 für Karsten
+
+**Ziel:** Die Abfrage `2_AFE_nach_AMT_hextupel.rq`, der Rückweg `5_AMT_nach_AFE.rq` und `run_roundtrip.py` folgen Karstens Antworten vom 2026-11-03; das Paket geht als Fassung 3 an ihn.
+
+**Antworten von Karsten (Memo `1_Memo_AFE_AMT_AFE_kommentiert.docx`):**
+- `UncertainValue` hat genau einen Wert; mehrere Werte sind ein FW-Fall. `nm:uncertain_value` steht nie zusammen mit anderen Werten. Grenzfall A (Unsicherheit als Sammlung mit einem Mitglied) kommt bei ihm nicht vor.
+- „Resource“ bedeutet einzelne URIs, ohne „Resource“ Zahlen und Messwerte (noch ein Bauchgefühl, Zahlenwerte sind Work in Progress). Sein Beispiel 16048 müsste `UncertainResourceValue` heißen; für Wien reicht ein Roundtrip auf oberster Klassenebene (Grenzfall B ist damit angenommen).
+- Keine Quelltexte in AFE. Die Person trägt Werte ein (zwei Kandidaten: je 0.5) oder setzt ein Flag; AFE vergibt dann einen festen oder aus der Zahl der Optionen abgeleiteten Wert. Welche Regel das ist, ist offen (12324 mit 0.25 und 16048 mit 0.6 nicht belegt). Methode deshalb `fw:AFEAssignment`, nicht `fw:EqualShareRule` (Autor, 2026-11-03).
+- `fw:hasConfidence` und `fw:hasDegreeOfConnection` sind verwandt, nicht gleich: Konfidenz ist eine Unterart von Grad (FW-Patch 2026-11-03); die Abbildung setzt beides vorerst gleich (Karsten: erst einmal in Ordnung). Er nennt die Eigenschaft `hasConfidenceLevel`, das Memo `hasConfidence`: gegen die FW-Ontologie prüfen.
+- Heute höchstens ein Container hinter jedem `nmo:hasAuthority` (Grenzfall D kommt nicht vor, die Zusammenfassung über (Münze, Typ) ist sicher). Künftig mehrere `hasAuthority`-Kanten an einer Münze, je mit eigenem Container, die Herkunft gehört an die Münze; dann braucht jede Kante einen Beleg-Knoten über `fw:derivedFrom`.
+- Weitere Eigenschaften: Denomination und Mint haben dieselben Fälle wie Authority (ebenso in die Abfrage). Alle anderen (Axis, Weight, Material, ObjectType, Durchmesser, Start- und Enddatum, Status, Corrosion, Wear, SecondaryTreatment u. a.) tragen nur das Flag „uncertain“; dafür gibt es in AMT kein Muster, sie bleiben draußen.
+- Identität der Container egal (anonym ist in Ordnung); gleicher Wert genügt, die Schreibweise der Zahl muss nicht erhalten bleiben (im Memo festhalten).
+- Sicher (15668) und `nm:uncertain_value` (11471) sollen in beiden Richtungen unverändert bleiben. Mit S25 bekommt der sichere Fall `fw:Certainty` mit 1.0; der Rückweg macht daraus wieder den direkten Wert. Sein Vorschlag, `fw:CertainValue` und `fw:CertainResourceValue` anzulegen, ist in der FW-Ontologie nicht umgesetzt (offen).
+- Münzen ganz ohne `nmo:hasAuthority`: nicht beantwortet, noch einmal fragen.
+- Typ und Klasse sind ihm nicht klar (`fw:Vagueness` gegen `fw:VagueValue`): zwei Sätze in das Memo (steht in der FW-Ontologie seit dem Patch vom 2026-11-03).
+
+**Inhalt (Vorschlag):** Abfrage und Rückweg für Authority, Denomination, Mint (Eigenschaftsnamen vorher in Karstens Daten prüfen); Rückweg schreibt `UncertainResourceValue`; Fall „sicher“ schreibt `fw:hasType fw:Certainty`, `fw:hasMethod fw:AFEAssignment` an allen Kanten; `run_roundtrip.py` vergleicht auf oberster Klassenebene; Grenzfälle A und D als „kommt heute nicht vor“ dokumentiert; `AMT-N303` verschwindet durch die Methode; neues Memo (Fassung 3) mit den zwei Sätzen zu Typ und Klasse und der Rückfrage zu Münzen ohne `hasAuthority`.
+
+**Abnahme:** Roundtrip auf Karstens Daten (nach Anpassung von 16048): `ROUNDTRIP: GLEICH` auf oberster Klassenebene; `--check-only` ohne Warnung; zwei Läufe, `git status` stabil.
+
 ## Teil D – Offene Punkte
 
 - **D1** Autorenliste: erledigt in S3 (2026-10-26), siehe A4.
@@ -668,6 +720,6 @@ Der erste Windows-Lauf (Python 3.10) zeigte einen Fehler, den die Sandbox nicht 
 - **D13** erledigt in S20 (2026-10-30): `fw:derivedFrom` und der Evidenzknoten werden gelesen und unverändert durchgereicht, abgeleitete Kanten bekommen kein `fw:derivedFrom` (A4). Die FW-Definition verlangt bei abgeleiteten Aussagen einen Verweis auf die Antezedens-Aussagen; das braucht stabile IRIs statt Blank Nodes und bleibt ein möglicher späterer Schritt.
 - **D14** erledigt in S20 (2026-10-30): Inverse und Subsumption ohne Methode, mit dem Typ der Quellkante; bei Mehrfachableitung entscheidet der Weg mit dem höchsten Gewicht, bei Gleichstand die kleinste Methoden-IRI (A4).
 - **D15** erledigt in S20 (2026-10-30): `xsd:decimal` in der Turtle-Ausgabe (A4); die Ausgabe jedes Beispiels ändert sich einmalig und wird im CHANGELOG von S21 genannt.
-- **D16** Rückmeldung an die FW-Ontologie (Repo gehört dem Autor, eigener Patch dort): (a) die Kombinationsregel für Typen abgeleiteter Aussagen, (b) die AMT-Logiken stehen jetzt in `amt.ttl`, `data/amt-alignment.ttl` kann entfallen, (c) `fw:implementedBy` für `fw:EqualShareRule`, (d) dass in AMT jede Aussage ohne Angabe als vage gilt, steht dort nirgends.
-- **D17** Mini-AMT-Repo (`leiza-scit/CHNT2026-amt`): die Zuordnung „sichere Aussage, kein Typ“ in `weights.py` entfällt mit dem Standard „vage“; dort in S3a mitnehmen. Der Schritt „Hextupel in amt-engine und amt-runner“ im Primer jenes Repos entspricht S20 bis S23 hier.
+- **D16** Rückmeldung an die FW-Ontologie (Repo gehört dem Autor, eigener Patch dort): teilweise erledigt im FW-Patch vom 2026-11-03: (a) die Kombinationsregel und (d) der Standardtyp „vage“ stehen jetzt in den Kommentaren von `fw:FW_Type` und `fw:hasType`; neu dort außerdem `fw:Certainty`, `fw:AFEAssignment`, `fw:hasConfidence` als Unterart von `fw:hasDegreeOfConnection`. Offen: (b) `data/amt-alignment.ttl` kann entfallen (die Logiken stehen in `amt.ttl`; die Grafik der Methoden liest die Datei noch), (c) `fw:implementedBy` für `fw:EqualShareRule` (Zielpunkt: Release oder Zenodo im Mini-AMT-Repo).
+- **D17** Mini-AMT-Repo (`leiza-scit/CHNT2026-amt`): die Zuordnung „sichere Aussage, kein Typ“ in `weights.py` entfällt mit dem Standard „vage“; dort in S3a mitnehmen. Seit S25 gibt es `fw:Certainty`: sichere Aussagen (kein `?`, kein OR) können dort und in `tei--epidoc-amt` (Gewicht 1.0 ohne Typ) den Typ `fw:Certainty` bekommen; das ändert die erzeugten Graphen und muss in beiden Repos als eigener Schritt entschieden werden. Der Schritt „Hextupel in amt-engine und amt-runner“ im Primer jenes Repos entspricht S20 bis S23 hier.
 - **D18** teilweise erledigt in S19 (2026-10-30): Pages-Adresse `https://alpaca-fair-framework.github.io/amt-engine/` geprüft, `deploy/redirects.yaml` umgestellt (A4). Stand 2026-10-30 laut Autor: `.htaccess` angepasst und Zenodo umgestellt; ungeprüft bleibt `py/check_redirects.py`. Ursprünglich offen, durch den Autor: die erzeugte `.htaccess` für `academic-meta-tool.xyz` per FTP neu hochladen; einen neuen Pull Request in `perma-id/w3id.org` stellen (ein bestehender Eintrag zeigt, falls #6998 gemergt ist, noch auf die alte Pages-Adresse; Stand nicht geprüft); die Zenodo-Anbindung an der neuen Organisation prüfen (die Concept-DOIs bleiben); danach `python py/check_redirects.py`.

@@ -13,7 +13,20 @@ Zenodo.
 
 ## [Unreleased]
 
+### Added
+
+- **`fw:Certainty`** as a fourth statement type (S25). A certain statement is not fuzzy at all and has weight 1.0; the term stands beside
+  `fw:Vagueness` and `fw:Uncertainty` in the FW ontology (not below `fw:FuzzinessWobbliness`). It is never assumed: a statement without
+  `fw:hasType` is still a vagueness statement. *Warum:* AFE (Karsten) hat sichere Werte; mit einem eigenen Typ sind sie von „Typ nicht angegeben“ zu unterscheiden und rechnen im Reasoning mit.
+- **Types of derived edges:** `fw:Certainty` adds no fuzziness. A role chain of certain edges gives a certain edge (weight 1.0 under all six logics);
+  a certain edge next to another type gives that type; different remaining types still give `fw:FuzzinessWobbliness`. Python (`amt.fw.combine_types`)
+  and the JavaScript port (`combineTypes`) agree, the parity test has seven more cases.
+- **`AMT-W206`** (warning): `fw:Certainty` with a weight below 1. The weight is kept as it is; no abort.
+- `fw:implementedBy` on the six logics in `ontology/amt.ttl`, pointing to `amt/logic.py` at the tag `v0.6.0`.
+
 ### Changed
+
+- `AMT-W205` names four known types. Pages, How-To (type table, catalogue entry `AMT-W206`) and README describe `fw:Certainty`.
 
 - Documentation site brought up to the hextuple (S24). The pages still described an edge as a quadruple.
   Data model: "Weighted edges" now shows the core (subject, role, object, weight) and the optional `fw:hasType`

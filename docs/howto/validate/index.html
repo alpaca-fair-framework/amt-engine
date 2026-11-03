@@ -125,9 +125,15 @@ ex:a amt:instanceOf ex:C . ex:b amt:instanceOf ex:C .
 [] rdf:subject ex:a ; rdf:predicate ex:r ; rdf:object ex:b ; amt:weight 1.5 .</code></pre></div>
 <div class="term" id="AMT-W205">
 <h3><code>AMT-W205</code> <span class="badge">warning</span></h3>
-<p><strong>... is used as fw:hasType but is not one of the three types</strong></p>
-<p><em>Cause.</em> A statement can say what kind of fuzziness its weight expresses: <code>fw:Vagueness</code>, <code>fw:Uncertainty</code> or <code>fw:FuzzinessWobbliness</code>. Any other value is kept and counted as a type of its own, which is probably a typo or a term from another vocabulary.</p>
-<p><em>Fix.</em> Use one of the three, or leave <code>fw:hasType</code> out: a statement without a type is a vagueness statement.</p>
+<p><strong>... is used as fw:hasType but is not one of the known types</strong></p>
+<p><em>Cause.</em> A statement can say what kind of fuzziness its weight expresses: <code>fw:Vagueness</code>, <code>fw:Uncertainty</code>, <code>fw:FuzzinessWobbliness</code>, or <code>fw:Certainty</code> for a statement that is not fuzzy at all. Any other value is kept and counted as a type of its own, which is probably a typo or a term from another vocabulary.</p>
+<p><em>Fix.</em> Use one of the four, or leave <code>fw:hasType</code> out: a statement without a type is a vagueness statement.</p>
+</div>
+<div class="term" id="AMT-W206">
+<h3><code>AMT-W206</code> <span class="badge">warning</span></h3>
+<p><strong>N statement(s) have fw:hasType fw:Certainty but a weight below 1</strong></p>
+<p><em>Cause.</em> A certain statement holds fully, so its weight is 1.0. A weight below 1 on a certain statement contradicts itself; the engine keeps the weight as it is and still counts the statement as certain, so an edge derived from it can be certain with a weight below 1.</p>
+<p><em>Fix.</em> Give the statement weight 1.0, or change its type to <code>fw:Vagueness</code>, <code>fw:Uncertainty</code> or <code>fw:FuzzinessWobbliness</code>.</p>
 </div>
 <div class="term" id="AMT-W204">
 <h3><code>AMT-W204</code> <span class="badge">warning</span></h3>

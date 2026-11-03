@@ -330,18 +330,21 @@ _:a2 rdf:subject   ex:coin1 ;
      rdf:predicate ex:attributedTo ;
      rdf:object    ex:vespasian ;
      amt:weight    "0.5"^^xsd:decimal ;
-     fw:hasType    fw:Uncertainty ;        # fw:Vagueness | fw:Uncertainty | fw:FuzzinessWobbliness
+     fw:hasType    fw:Uncertainty ;        # fw:Vagueness | fw:Uncertainty | fw:FuzzinessWobbliness | fw:Certainty
      fw:hasMethod  fw:EqualShareRule .     # how the weight was obtained
 ```
 
 - Both are optional. **A statement without `fw:hasType` is a vagueness
   statement**, also at weight 1.0; the engine does not write that default into
-  its output unless the input had it.
+  its output unless the input had it. To say that a statement is certain, write
+  `fw:hasType fw:Certainty` with weight 1.0 (a lower weight is reported as
+  `AMT-W206`).
 - The weight can be written `amt:weight` or `fw:hasDegreeOfConnection`; the
   output always uses `amt:weight`.
 - A derived statement carries the logic of its axiom as `fw:hasMethod`
   (for example `amt:GoedelLogic`) and as `fw:hasType` the common type of its
-  antecedents, or `fw:FuzzinessWobbliness` if they differ. The edge dicts have
+  antecedents, or `fw:FuzzinessWobbliness` if they differ; `fw:Certainty` adds
+  no fuzziness and is left out as soon as another type is present. The edge dicts have
   the keys `type`, `method` and `evidence`; `amt.effective_type(edge)` returns
   the type that counts.
 - `edges.csv` has two more columns at the end (`type`, `method`); the Cypher

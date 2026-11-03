@@ -258,9 +258,11 @@ amt:recommendedFor a rdf:Property ;
 # --- Operator instances ------------------------------------------------------
 # Each operator is also an fw:PropagationMethod of the FW ontology
 # (http://w3id.org/fw_ontology/), so that a derived statement can name it as
-# its fw:hasMethod.
+# its fw:hasMethod. fw:implementedBy points to the code at the tag of release
+# 0.6.0 (amt/logic.py), which does not change with later commits.
 
 amt:GoedelLogic a amt:Logic, fw:PropagationMethod ;
+    fw:implementedBy   <https://github.com/alpaca-fair-framework/amt-engine/blob/v0.6.0/amt/logic.py> ;
     rdfs:label    "Gödel logic"@en ;
     rdfs:comment  "Bottleneck semantics: the chain is as strong as its weakest link. Path length is ignored."@en ;
     amt:formula        "min(x, y)" ;
@@ -269,6 +271,7 @@ amt:GoedelLogic a amt:Logic, fw:PropagationMethod ;
     amt:recommendedFor "Curated mappings; chains where path length should not penalise the result. Good default for n=2 and n=3." .
 
 amt:ProductLogic a amt:Logic, fw:PropagationMethod ;
+    fw:implementedBy   <https://github.com/alpaca-fair-framework/amt-engine/blob/v0.6.0/amt/logic.py> ;
     rdfs:label    "Product logic"@en ;
     rdfs:comment  "Probabilistic conjunction: weights multiply along the chain. Penalises path length exponentially."@en ;
     amt:formula        "x * y" ;
@@ -277,6 +280,7 @@ amt:ProductLogic a amt:Logic, fw:PropagationMethod ;
     amt:recommendedFor "Independent-evidence semantics. Best for n=2; can be too aggressive for chains with n >= 4." .
 
 amt:LukasiewiczLogic a amt:Logic, fw:PropagationMethod ;
+    fw:implementedBy   <https://github.com/alpaca-fair-framework/amt-engine/blob/v0.6.0/amt/logic.py> ;
     rdfs:label    "Łukasiewicz logic"@en ;
     rdfs:comment  "Bounded sum: max(x + y - 1, 0). Hard cutoff that collapses long chains to 0."@en ;
     amt:formula        "max(x + y - 1, 0)" ;
@@ -285,6 +289,7 @@ amt:LukasiewiczLogic a amt:Logic, fw:PropagationMethod ;
     amt:recommendedFor "Strict reasoning at n=2. Practically unusable for n >= 4 because the result almost always becomes 0." .
 
 amt:EinsteinProduct a amt:Logic, fw:PropagationMethod ;
+    fw:implementedBy   <https://github.com/alpaca-fair-framework/amt-engine/blob/v0.6.0/amt/logic.py> ;
     rdfs:label    "Einstein product"@en ;
     rdfs:comment  "Soft multiplication, lying between Gödel and Product. Stricter than Gödel, gentler than Product."@en ;
     amt:formula        "(x * y) / (2 - (x + y - x * y))" ;
@@ -293,6 +298,7 @@ amt:EinsteinProduct a amt:Logic, fw:PropagationMethod ;
     amt:recommendedFor "Automatically generated mappings of medium confidence. Good middle ground for n=3 and n=4." .
 
 amt:GeometricMean a amt:Logic, fw:PropagationMethod ;
+    fw:implementedBy   <https://github.com/alpaca-fair-framework/amt-engine/blob/v0.6.0/amt/logic.py> ;
     rdfs:label    "Geometric mean"@en ;
     rdfs:comment  "Aggregation operator: n-th root of the product. Path-length neutral; expresses average link quality."@en ;
     amt:formula        "(x_1 * x_2 * ... * x_n)^(1/n)" ;
@@ -301,6 +307,7 @@ amt:GeometricMean a amt:Logic, fw:PropagationMethod ;
     amt:recommendedFor "Comparing inferences across different chain lengths. Recommended default for n >= 4. Note: not a t-norm in the strict sense." .
 
 amt:HamacherProduct a amt:Logic, fw:PropagationMethod ;
+    fw:implementedBy   <https://github.com/alpaca-fair-framework/amt-engine/blob/v0.6.0/amt/logic.py> ;
     rdfs:label    "Hamacher product"@en ;
     rdfs:comment  "Parametrised t-norm family. Sensitivity to path length is controlled by a gamma parameter."@en ;
     amt:formula        "(x * y) / (gamma + (1 - gamma) * (x + y - x * y))" ;

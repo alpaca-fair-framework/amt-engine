@@ -72,10 +72,13 @@ def test_the_demo_has_derived_edges_with_type_and_method():
 
 
 def test_combine_types_matches_python():
-    from amt.fw import FUZZINESS_WOBBLINESS, UNCERTAINTY, VAGUENESS, combine_types
+    from amt.fw import CERTAINTY, FUZZINESS_WOBBLINESS, UNCERTAINTY, VAGUENESS, combine_types
     cases = [[], [None], [None, VAGUENESS], [UNCERTAINTY], [UNCERTAINTY, UNCERTAINTY], [UNCERTAINTY, None],
              [UNCERTAINTY, VAGUENESS, UNCERTAINTY], [FUZZINESS_WOBBLINESS, FUZZINESS_WOBBLINESS],
-             [FUZZINESS_WOBBLINESS, UNCERTAINTY]]
+             [FUZZINESS_WOBBLINESS, UNCERTAINTY],
+             [CERTAINTY], [CERTAINTY, CERTAINTY], [CERTAINTY, VAGUENESS], [CERTAINTY, None],
+             [CERTAINTY, UNCERTAINTY, UNCERTAINTY], [CERTAINTY, UNCERTAINTY, VAGUENESS],
+             [CERTAINTY, FUZZINESS_WOBBLINESS]]
     got = _node({"op": "combine", "cases": cases})
     assert got == [combine_types(c) for c in cases]
 
