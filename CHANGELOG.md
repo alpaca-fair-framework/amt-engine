@@ -11,7 +11,7 @@ each date is that of the commit that introduced the version number in
 those commits. 0.3.1 is the first release published on GitHub and archived on
 Zenodo.
 
-## [Unreleased]
+## [0.7.0] - 2026-11-04
 
 ### Fixed
 
@@ -422,7 +422,8 @@ continuous integration.
 - The formal ontology: `ontology/amt.ttl`, `ontology/amt-shapes.ttl`, valid and
   invalid example files, `validate_examples.py` and an ontology README.
 
-[Unreleased]: https://github.com/alpaca-fair-framework/amt-engine/compare/v0.6.0...HEAD
+[Unreleased]: https://github.com/alpaca-fair-framework/amt-engine/compare/v0.7.0...HEAD
+[0.7.0]: https://github.com/alpaca-fair-framework/amt-engine/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/alpaca-fair-framework/amt-engine/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/alpaca-fair-framework/amt-engine/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/alpaca-fair-framework/amt-engine/compare/v0.3.1...v0.4.0

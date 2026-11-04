@@ -23,8 +23,8 @@ from pathlib import Path
 # Must equal [project].version in pyproject.toml, amt.__version__, the top
 # released entry of CHANGELOG.md and ``version`` in CITATION.cff. The ``meta``
 # step checks all five against each other.
-RELEASE = "0.6.0"
-RELEASE_DATE = "2026-10-30"
+RELEASE = "0.7.0"
+RELEASE_DATE = "2026-11-04"
 
 # --------------------------------------------------------------------------- #
 # Paths

@@ -364,6 +364,7 @@ def vocab_page(g: Graph, overview_svg: str) -> str:
                  '<tr><td><code>v0.3.0</code></td><td>2026-08-29</td><td><code>amt:SubsumptionAxiom</code></td></tr>'
                  '<tr><td><code>v0.4.0</code></td><td>2026-10-27</td><td>this page; creators, licence and source on the ontology resource; downloads as Turtle, RDF/XML and JSON-LD</td></tr>'
                  '<tr><td><code>v0.6.0</code></td><td>2026-10-30</td><td>prefix <code>fw:</code>; the six logics are also <code>fw:PropagationMethod</code>; <code>fw:hasType</code>, <code>fw:hasMethod</code> and evidence are read and written</td></tr>'
+                 '<tr><td><code>v0.7.0</code></td><td>2026-11-04</td><td><code>fw:Certainty</code> as a fourth type (weight 1.0, never assumed); <code>fw:implementedBy</code> on the six logics</td></tr>'
                  '</tbody></table>')
     return page(title=f"{title.replace('Ontology', 'Vocabulary')} – AMT", body="\n".join(parts),
                 depth=1, current="vocab",

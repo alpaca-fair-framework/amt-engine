@@ -151,6 +151,7 @@ Eigenschaften, die das Repo haben muss:
 | Hextupel: Typ „sicher“ | Neuer Typ `fw:Certainty` (Individuum von `fw:FW_Type`, FW-Ontologie 2026-11-03): die Aussage ist nicht fuzzy, Gewicht 1.0. Er steht neben `fw:Vagueness` und `fw:Uncertainty`, nicht unter `fw:FuzzinessWobbliness`. Er wird nie angenommen: Der Standard „ohne `fw:hasType` = vage“ (Zeile vom 2026-10-30) bleibt, `fw:Certainty` gilt nur, wenn die Daten es schreiben (Beschluss des Autors) | 2026-11-03 |
 | Hextupel: Typ bei abgeleiteten Kanten mit „sicher“ | `fw:Certainty` zählt nicht, sobald ein anderer Typ vorkommt: nur sichere Antezedentien → `fw:Certainty` (Gewicht 1.0 unter allen sechs Logiken); sicher + X → X; verschiedene übrige Typen → `fw:FuzzinessWobbliness`. Ein Typ ohne Angabe zählt weiter als `fw:Vagueness`, also ist „sicher + ohne Typ“ vage. Das ist die Regel für `combine_types` und `combineTypes` | Vorschlag 2026-11-03 (mit S25 umgesetzt; vom Autor noch nicht ausdrücklich bestätigt, nur die Wahl „daneben“ steht fest) |
 | Hextupel: `fw:Certainty` mit Gewicht unter 1 | Diagnose `AMT-W206` (Warnung): Das Gewicht bleibt, wie es ist, der Typ bleibt `fw:Certainty`; eine daraus abgeleitete Kante kann dann sicher mit Gewicht unter 1 sein. Es gibt keinen Abbruch und kein SHACL-Verstoß. `AMT-W205` nennt jetzt vier Typen | 2026-11-03 |
+| Release 0.7.0 | Neuer Typ ist additiv, also Minor-Version: Engine 0.7.0 mit dem Inhalt von S25 (`fw:Certainty`, `combine_types`, `AMT-W206`, `fw:implementedBy`). Grund: Das Mini-AMT-Repo (`samian-amt`) und sein Abgleich brauchen `fw:Certainty` in der veröffentlichten Version; mit 0.6.0 überspringt der Abgleich die Prüfung. `fw:implementedBy` zeigt weiter auf den Tag `v0.6.0` (`amt/logic.py` ist unverändert). Datum 2026-11-04 gilt, wenn Tag und Release am selben Tag folgen | 2026-11-04 |
 | `fw:implementedBy` der sechs Logiken | In `ontology/amt.ttl` hat jede Logik `fw:implementedBy <https://github.com/alpaca-fair-framework/amt-engine/blob/v0.6.0/amt/logic.py>` (Tag, ändert sich nicht mit späteren Commits). Eine Zenodo-Adresse kommt, wenn es eine für die Datei gibt | 2026-11-03 |
 | Eingabe als Text | `load_amt` und `validate_against_shapes` behandeln einen Text, der kein Pfad sein kann („File name too long“), als Turtle; Fehler beim Prüfen des Pfads gelten als „kein Pfad“ (`is_existing_path` in `amt/core.py`) | 2026-10-30 |
 | Namensräume der Beispiele | Die Bezeichner der Beispieldaten ziehen mit um: `http://github.com/alpaca-fair-framework/amt-explore/` (animals, SKOS-Beispiele) und `http://github.com/alpaca-fair-framework/amt-engine/subsumption-demo/`; die Pfade bleiben, nur der Organisationsname ändert sich. Der Vorschlag war, sie als stabile Bezeichner zu belassen; der Autor hat anders entschieden. Dateien mit dem alten Namensraum laden und validieren weiter | 2026-10-30 |
@@ -213,6 +214,7 @@ Entfällt in diesem Repo. Der Namensraum `http://academic-meta-tool.xyz/vocab#` 
 | S23 | Runner (Beispiel, Dokumentation, Versions-Hinweis), Release Engine 0.6.0 und Runner 0.5.0 samt Zenodo | amt-engine, amt-runner | S21, S22 | 23a und 23b erledigt (Tag `v0.6.0`, Release, Zenodo); 23c als Patch geliefert |
 | S25 | Typ `fw:Certainty` in Python-Engine und JS-Port (Kombinationsregel, Diagnose `AMT-W206`), `fw:implementedBy` der Logiken, Doku | amt-engine | S21, S22; FW-Patch 2026-11-03 | Patch geliefert 2026-11-03, nach Push erledigt |
 | S26 | AFE ↔ AMT, Fassung 3 für Karsten: Abfrage und Rückweg mit Denomination und Mint, `UncertainResourceValue`, `fw:Certainty` für den sicheren Fall, Methode `fw:AFEAssignment`, Roundtrip auf oberster Klassenebene, Beispiele (D12) | amt-engine | S25 | Paket geliefert 2026-11-03, nach Rückmeldung von Karsten erledigt |
+| S27 | Release Engine 0.7.0 (`fw:Certainty`, `AMT-W206`, `fw:implementedBy`): 27a Patch (Versionen, CHANGELOG, Seiten), 27b manuell (Commit, Tag, GitHub-Release, Zenodo), 27c Patch (Versions-DOI) | amt-engine | S25 | 27a als Patch geliefert 2026-11-04; 27b und 27c offen |
 
 S3, S4, S5 und S6 sind erledigt. Offen bleiben die Punkte in Teil D. Der Runner (S2) liest die Engine zur Laufzeit aus `main`; er braucht S5 erst, wenn er auf Tags pinnen soll.
 
@@ -708,6 +710,23 @@ Der erste Windows-Lauf (Python 3.10) zeigte einen Fehler, den die Sandbox nicht 
 - `run_roundtrip.py` vergleicht auf oberster Klassenebene (`…Value` = `…ResourceValue`): `ROUNDTRIP: GLEICH` mit rdflib und durch die Engine, für Karstens fünf Münzen und die konstruierten Denomination/Mint-Münzen. `--check`: 2 Concepts, 12 Nodes, 7 Edges, nur `AMT-N301`; `AMT-N303` ist durch die Methode weg.
 - Grenze von Fall 4: Die Engine behält je Knoten nur `amt:instanceOf` und Label, ein zusätzliches Tripel `nmo:hasAuthority nm:uncertain_value` geht verloren. „Münze ohne jede Kante“ bedeutet daher im Rückweg nur Authority = unbekannt; für Denomination und Mint gibt es keine Darstellung. Offen bis zu Karstens Antwort (Münzen ohne `hasAuthority`, Frage 2 im Memo).
 - Offene Fragen an Karsten (Memo, Abschnitt 8): Namen für Denomination/Mint, Münzen ohne `hasAuthority`, `hasConfidence` oder `hasConfidenceLevel`, Klasse für sichere Werte (`fw:CertainValue`), Regel für die Gewichte, weitere Eigenschaften.
+
+
+## S27 – Release 0.7.0
+
+**Ziel:** Die veröffentlichte Engine kennt `fw:Certainty`; `pip install -r requirements.txt` in `samian-amt` und im Runner bringt sie mit.
+
+**Anlass:** Der Autor fragte am 2026-11-04, ob die Engine nach den Änderungen in `samian-amt` (Roundtrip AMT → AFE → AMT, SHACL von M1) aktualisiert werden muss. Der Code der Engine bleibt, wie er ist; der Abgleich im Mini-AMT-Repo läuft aber erst mit einer Engine, die `fw:Certainty` kennt (`amt.fw.CERTAINTY`, seit S25 im Zweig `main`, nicht in 0.6.0). Auf der Maschine des Autors stand dort „AMT engine 0.6.0 does not know fw:Certainty yet – cross-check skipped“.
+
+**Inhalt:** nach dem Muster von S23: 27a (Patch) Versionen in `pyproject.toml`, `amt/__init__.py`, `CITATION.cff` (`date-released` 2026-11-04), `py/amt_dev_utils.py` (`RELEASE`, `RELEASE_DATE`), `CHANGELOG.md` (`[Unreleased]` wird `[0.7.0] - 2026-11-04`, Vergleichslinks), Zeile `v0.7.0` in der Tabelle der Vokabularseite (`py/site_pages.py`); die acht erzeugten Seiten gehören in den Commit. 27b (manuell) Commit, annotierter Tag `v0.7.0`, GitHub-Release, Zenodo. 27c (Patch) Versions-DOI in README (Abschnitt „Citation“) und, falls gewünscht, ein Hinweis im CHANGELOG.
+
+**Abnahme:** `python main.py --strict` zweimal grün, `git status` danach nur mit den im PATCH-README genannten Pfaden (6 Quellen, 8 erzeugte Seiten); Tag und Release sichtbar; Versions-DOI nach 27c in der README. Danach in `samian-amt`: `pip install -U` (oder `--update` im Runner) und `python main.py --only roundtrip` zeigt `AMT engine agrees ...` statt „cross-check skipped“.
+
+### Erledigt 2026-11-04 (27a)
+
+- Alle fünf Versionsstellen auf 0.7.0 und 2026-11-04; `step_meta` grün. Geprüft in der Sandbox (Python 3.13, frischer Klon von `ce23c5c`): `python main.py --strict` zweimal grün, der zweite Lauf ändert nichts mehr; Ausgangsstand vor der Änderung ebenfalls grün und sauber.
+- Nicht geprüft: Python 3.10 (wie bei S25), Windows.
+- Offen: 27b (Commit, Tag, Release, Zenodo) durch den Autor; 27c nach Zenodo. Runner: eigener Schritt in seinem Primer (Version, Hinweis auf Engine 0.7.0); `samian-amt` und der Runner ziehen die Engine über `requirements.txt` / `--update`.
 
 ## Teil D – Offene Punkte
 
