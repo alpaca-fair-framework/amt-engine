@@ -214,7 +214,7 @@ Entfällt in diesem Repo. Der Namensraum `http://academic-meta-tool.xyz/vocab#` 
 | S23 | Runner (Beispiel, Dokumentation, Versions-Hinweis), Release Engine 0.6.0 und Runner 0.5.0 samt Zenodo | amt-engine, amt-runner | S21, S22 | 23a und 23b erledigt (Tag `v0.6.0`, Release, Zenodo); 23c als Patch geliefert |
 | S25 | Typ `fw:Certainty` in Python-Engine und JS-Port (Kombinationsregel, Diagnose `AMT-W206`), `fw:implementedBy` der Logiken, Doku | amt-engine | S21, S22; FW-Patch 2026-11-03 | Patch geliefert 2026-11-03, nach Push erledigt |
 | S26 | AFE ↔ AMT, Fassung 3 für Karsten: Abfrage und Rückweg mit Denomination und Mint, `UncertainResourceValue`, `fw:Certainty` für den sicheren Fall, Methode `fw:AFEAssignment`, Roundtrip auf oberster Klassenebene, Beispiele (D12) | amt-engine | S25 | Paket geliefert 2026-11-03, nach Rückmeldung von Karsten erledigt |
-| S27 | Release Engine 0.7.0 (`fw:Certainty`, `AMT-W206`, `fw:implementedBy`): 27a Patch (Versionen, CHANGELOG, Seiten), 27b manuell (Commit, Tag, GitHub-Release, Zenodo), 27c Patch (Versions-DOI) | amt-engine | S25 | 27a als Patch geliefert 2026-11-04; 27b und 27c offen |
+| S27 | Release Engine 0.7.0 (`fw:Certainty`, `AMT-W206`, `fw:implementedBy`): 27a Patch (Versionen, CHANGELOG, Seiten), 27b manuell (Commit, Tag, GitHub-Release, Zenodo), 27c Patch (Versions-DOI) | amt-engine | S25 | 27a, 27b und 27c erledigt 2026-11-04 (Commit `dd076da`, Tag `v0.7.0`, Release, Zenodo) |
 
 S3, S4, S5 und S6 sind erledigt. Offen bleiben die Punkte in Teil D. Der Runner (S2) liest die Engine zur Laufzeit aus `main`; er braucht S5 erst, wenn er auf Tags pinnen soll.
 
@@ -725,8 +725,11 @@ Der erste Windows-Lauf (Python 3.10) zeigte einen Fehler, den die Sandbox nicht 
 ### Erledigt 2026-11-04 (27a)
 
 - Alle fünf Versionsstellen auf 0.7.0 und 2026-11-04; `step_meta` grün. Geprüft in der Sandbox (Python 3.13, frischer Klon von `ce23c5c`): `python main.py --strict` zweimal grün, der zweite Lauf ändert nichts mehr; Ausgangsstand vor der Änderung ebenfalls grün und sauber.
-- Nicht geprüft: Python 3.10 (wie bei S25), Windows.
-- Offen: 27b (Commit, Tag, Release, Zenodo) durch den Autor; 27c nach Zenodo. Runner: eigener Schritt in seinem Primer (Version, Hinweis auf Engine 0.7.0); `samian-amt` und der Runner ziehen die Engine über `requirements.txt` / `--update`.
+- In der Sandbox nicht geprüft: Python 3.10 und Windows (beim Autor auf Windows grün, siehe unten).
+- 27b (durch den Autor, 2026-11-04): Commit `dd076da`, annotierter Tag `v0.7.0`, GitHub-Release, Zenodo. Versions-DOI Engine 0.7.0: `10.5281/zenodo.23965455`; die Concept-DOI `10.5281/zenodo.23669466` bleibt. Der Ordnername im Zenodo-Archiv (`…-amt-engine-ca18214`) ist die Kennung des annotierten Tags, nicht des Commits (wie bei 0.6.0).
+- 27c (Patch): die Versions-DOI in der README (Abschnitt „Citation“) und im CHANGELOG unter `[0.7.0]`.
+- Abnahme bei dem Autor, 2026-11-04: `python main.py && python main.py --strict` grün (178 Tests, Determinismus byte-identisch), Push und Tag ohne Fehler.
+- Offen: Runner: eigener Schritt in seinem Primer (Version, Hinweis auf Engine 0.7.0); `samian-amt` und der Runner ziehen die Engine über `requirements.txt` / `--update`.
 
 ## Teil D – Offene Punkte
 

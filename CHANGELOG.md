@@ -30,6 +30,9 @@ Zenodo.
 
 ### Changed
 
+- `README.md`, "Citation": names the version DOI of 0.7.0,
+  `10.5281/zenodo.23965455`. The concept DOI is unchanged.
+
 - `AMT-W205` names four known types. Pages, How-To (type table, catalogue entry `AMT-W206`) and README describe `fw:Certainty`.
 
 - Documentation site brought up to the hextuple (S24). The pages still described an edge as a quadruple.
